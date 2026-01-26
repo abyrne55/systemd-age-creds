@@ -9,7 +9,7 @@ permissions:
 jobs:
   merge:
     runs-on: ubuntu-slim
-    if: github.actor == 'dependabot[bot]' && github.repository == 'josh/systemd-age-creds'
+    if: github.actor == 'dependabot[bot]' && github.repository == 'abyrne55/systemd-age-creds'
 
     steps:
       - name: Dependabot metadata

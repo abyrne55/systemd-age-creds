@@ -1,6 +1,0 @@
-[Unit]
-Description=systemd age credentials service
-
-[Service]
-Type=simple
-ExecStart=/usr/sbin/systemd-age-creds

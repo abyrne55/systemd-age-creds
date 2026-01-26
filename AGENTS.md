@@ -9,16 +9,10 @@ This project is written in Go and has no go mod dependencies. The repository ass
 
 ## Testing
 
-Run native go tests with:
+Run tests with:
 
 ```sh
 go test ./...
-```
-
-Run tests inside Nix sandbox:
-
-```
-nix flake check
 ```
 
 ## Formatting

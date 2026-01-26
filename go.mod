@@ -1,3 +1,3 @@
-module github.com/josh/systemd-age-creds
+module github.com/abyrne55/systemd-age-creds
 
-go 1.25.5
+go 1.25.6
