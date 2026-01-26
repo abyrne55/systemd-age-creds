@@ -1,19 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "nix": {
-    "enabled": true
-  },
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 4am on the first day of the month"]
   },
-  "packageRules": [
-    {
-      "matchFiles": [".github/workflows/go.yml"],
-      "matchDepNames": ["go"],
-      "enabled": false
-    }
-  ],
   "automerge": true,
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
