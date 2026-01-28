@@ -31,7 +31,7 @@ The installation uses two systemd units:
 If you want to build locally instead of using the pre-built image:
 
 ```bash
-podman build -t ghcr.io/abyrne55/systemd-age-creds:latest -f Containerfile .
+podman build -t ghcr.io/abyrne55/systemd-age-creds:main -f Containerfile .
 ```
 
 ### 2. Set up credentials
