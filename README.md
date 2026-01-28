@@ -8,7 +8,7 @@ At the moment, [systemd-creds](https://www.freedesktop.org/software/systemd/man/
 
 Solutions like [SOPS](https://github.com/getsops/sops) allow secrets to be encrypted elsewhere, checked into git and then only decrypted on the deployment host. It would be nice if a similar pattern could be applied to [systemd credentials](https://systemd.io/CREDENTIALS/).
 
-`systemd-age-creds` provides a service credential server over `AF_UNIX` socket to provide [age](https://github.com/FiloSottile/age) encrypted credentials to [systemd units](https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html) using `LoadCredential`.
+`systemd-age-creds` provides a service credential server over `AF_UNIX` socket to provide [age](https://github.com/FiloSottile/age) encrypted credentials to [systemd units](https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html)
 
 ## Installation
 
@@ -100,7 +100,7 @@ If your identity file or credentials are in different locations, create a drop-i
 
 ```bash
 sudo mkdir -p /etc/containers/systemd/systemd-age-creds.container.d
-sudo tee /etc/containers/systemd/systemd-age-creds.container.d/paths.conf << 'EOF'
+sudo tee /etc/containers/systemd-age-creds.container.d/paths.conf << 'EOF'
 [Container]
 Volume=/path/to/your/identity.txt:/identity/key.txt:ro,Z
 Volume=/path/to/your/credentials:/credentials:ro,Z
@@ -132,6 +132,21 @@ Check the socket status:
 sudo systemctl status systemd-age-creds.socket
 ```
 
+## Credential naming and current limitations
+
+Important notes about how credential IDs map to files on disk:
+
+- Filenames must end with the `.age` extension. The server looks up credentials by appending `.age` to the credential ID it receives, so a credential ID of `my-credential` becomes `my-credential.age` on disk.
+
+- Multi-level directories (nested paths) are not supported. The server treats the credential ID as a single filename (a single path segment) and always looks for files directly under the configured credentials directory (e.g. `/credentials/<credential>.age`). Requests cannot specify `subdir/my-secret` to reach `/credentials/subdir/my-secret.age`.
+
+- Globbing or wildcard expansion is not supported. A credential ID like `httpd-*` will be treated literally (the server will try to read a file named `httpd-*.age`), it will not expand to match files such as `httpd-01.age`, `httpd-02.age`, etc.
+
+Security note
+- If you later add support for nested paths, ensure you validate credential IDs to prevent path traversal (for example, reject any `..` components) and restrict lookups to within the mounted credentials directory.
+
+If you need nested directories or pattern matching, consider pre-organizing credentials into flat filenames (for example, use `subdir--name.age` or `subdir_name.age`) or open an issue / PR to add explicit support for these features.
+
 ## See Also
 
-[systemd Credentials](https://systemd.io/CREDENTIALS/), [systemd-creds](https://www.freedesktop.org/software/systemd/man/latest/systemd-creds.html), [age](https://github.com/FiloSottile/age), [age-plugin-tpm](https://github.com/Foxboron/age-plugin-tpm)
+[systemd Credentials](https://systemd.io/CREDENTIALS/), [systemd-creds](https://www.freedesktop.org/software/systemd/man/latest/systemd-creds.html), [age](https://github.com/FiloSottile/age)
