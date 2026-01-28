@@ -4,7 +4,7 @@ Requires=systemd-age-creds.socket
 After=systemd-age-creds.socket
 
 [Container]
-Image=ghcr.io/abyrne55/systemd-age-creds:latest
+Image=ghcr.io/abyrne55/systemd-age-creds:main
 SocketActivated=true
 Network=none
 ReadOnly=true
