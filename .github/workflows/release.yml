@@ -81,13 +81,24 @@ jobs:
           /usr/lib/systemd/system/systemd-age-creds.socket
 
           %post
-          %systemd_post systemd-age-creds.socket
+          if [ \$1 -eq 1 ]; then
+              # Initial installation
+              systemctl --no-reload preset systemd-age-creds.socket >/dev/null 2>&1 || :
+          fi
+          systemctl daemon-reload >/dev/null 2>&1 || :
 
           %preun
-          %systemd_preun systemd-age-creds.socket systemd-age-creds.service
+          if [ \$1 -eq 0 ]; then
+              # Package removal, not upgrade
+              systemctl --no-reload disable --now systemd-age-creds.socket systemd-age-creds.service >/dev/null 2>&1 || :
+          fi
 
           %postun
-          %systemd_postun_with_restart systemd-age-creds.socket
+          systemctl daemon-reload >/dev/null 2>&1 || :
+          if [ \$1 -ge 1 ]; then
+              # Package upgrade, not removal
+              systemctl try-restart systemd-age-creds.socket >/dev/null 2>&1 || :
+          fi
 
           %changelog
           * $(date +"%a %b %d %Y") GitHub Actions <noreply@github.com> - ${VERSION_NO_V}-1
