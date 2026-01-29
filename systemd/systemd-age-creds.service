@@ -6,7 +6,7 @@ After=systemd-age-creds.socket
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/systemd-age-creds
+ExecStart=/usr/bin/systemd-age-creds
 Restart=on-failure
 RestartSec=5s
 
