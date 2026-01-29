@@ -67,18 +67,18 @@ jobs:
           %setup -q -c
 
           %install
-          mkdir -p %{buildroot}%{_bindir}
-          mkdir -p %{buildroot}%{_unitdir}
-          install -m 755 systemd-age-creds %{buildroot}%{_bindir}/systemd-age-creds
-          install -m 644 systemd/systemd-age-creds.service %{buildroot}%{_unitdir}/
-          install -m 644 systemd/systemd-age-creds.socket %{buildroot}%{_unitdir}/
+          mkdir -p %{buildroot}/usr/bin
+          mkdir -p %{buildroot}/usr/lib/systemd/system
+          install -m 755 systemd-age-creds %{buildroot}/usr/bin/systemd-age-creds
+          install -m 644 systemd/systemd-age-creds.service %{buildroot}/usr/lib/systemd/system/
+          install -m 644 systemd/systemd-age-creds.socket %{buildroot}/usr/lib/systemd/system/
 
           %files
           %license LICENSE
           %doc README.md
-          %{_bindir}/systemd-age-creds
-          %{_unitdir}/systemd-age-creds.service
-          %{_unitdir}/systemd-age-creds.socket
+          /usr/bin/systemd-age-creds
+          /usr/lib/systemd/system/systemd-age-creds.service
+          /usr/lib/systemd/system/systemd-age-creds.socket
 
           %post
           %systemd_post systemd-age-creds.socket
