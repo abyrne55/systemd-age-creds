@@ -21,7 +21,7 @@ jobs:
           go-version: '1.25.6'
 
       - name: Install RPM build tools
-        run: sudo dnf install -y rpm-build rpmdevtools
+        run: sudo apt-get update && sudo apt-get install -y rpm
 
       - name: Build binary
         run: |
