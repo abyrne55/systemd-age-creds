@@ -7,4 +7,4 @@ SocketMode=0600
 FileDescriptorName=systemd-age-creds
 
 [Install]
-WantedBy=sockets.target
+WantedBy=multi-user.target
