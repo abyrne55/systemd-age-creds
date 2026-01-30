@@ -31,3 +31,8 @@ jobs:
 
       - name: Run go vet
         run: go vet ./...
+
+      - name: Validate systemd unit files
+        run: |
+          systemd-analyze verify systemd/systemd-age-creds.service
+          systemd-analyze verify systemd/systemd-age-creds.socket
