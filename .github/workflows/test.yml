@@ -32,6 +32,11 @@ jobs:
       - name: Run go vet
         run: go vet ./...
 
+      - name: Build binary for systemd validation
+        run: |
+          go build -o systemd-age-creds
+          sudo mv systemd-age-creds /usr/bin/systemd-age-creds
+
       - name: Validate systemd unit files
         run: |
           systemd-analyze verify systemd/systemd-age-creds.service
@@ -55,7 +60,7 @@ jobs:
       - name: Build binary and tarball
         run: |
           VERSION=v0.0.0-test
-          VERSION_NO_V=0.0.0-test
+          VERSION_NO_V=0.0.0
           go build -ldflags="-X main.Version=${VERSION}" -o systemd-age-creds
 
           # Create tarball
@@ -65,7 +70,7 @@ jobs:
       - name: Build RPM package
         run: |
           VERSION=v0.0.0-test
-          VERSION_NO_V=0.0.0-test
+          VERSION_NO_V=0.0.0
 
           # Create RPM build directory structure
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
@@ -79,7 +84,7 @@ jobs:
 
           Name:           systemd-age-creds
           Version:        ${VERSION_NO_V}
-          Release:        1%{?dist}
+          Release:        0.1.test%{?dist}
           Summary:        Load age encrypted credentials in systemd units
 
           License:        Apache-2.0
@@ -130,7 +135,7 @@ jobs:
           fi
 
           %changelog
-          * $(date +"%a %b %d %Y") GitHub Actions <noreply@github.com> - ${VERSION_NO_V}-1
+          * $(date +"%a %b %d %Y") GitHub Actions <noreply@github.com> - ${VERSION_NO_V}-0.1.test
           - Test build
           EOF
 
