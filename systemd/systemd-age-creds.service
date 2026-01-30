@@ -3,6 +3,8 @@ Description=systemd age credentials service
 Documentation=https://github.com/abyrne55/systemd-age-creds
 Requires=systemd-age-creds.socket
 After=systemd-age-creds.socket
+ConditionPathExists=/etc/age/identity.txt
+ConditionDirectoryNotEmpty=/etc/age/credentials
 
 [Service]
 Type=simple
