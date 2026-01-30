@@ -31,3 +31,118 @@ jobs:
 
       - name: Run go vet
         run: go vet ./...
+
+      - name: Build binary for systemd validation
+        run: |
+          go build -o systemd-age-creds
+          sudo mv systemd-age-creds /usr/bin/systemd-age-creds
+
+      - name: Validate systemd unit files
+        run: |
+          systemd-analyze verify systemd/systemd-age-creds.service
+          systemd-analyze verify systemd/systemd-age-creds.socket
+
+  package-test:
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.6'
+
+      - name: Install RPM build tools
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - name: Build binary and tarball
+        run: |
+          VERSION=v0.0.0-test
+          VERSION_NO_V=0.0.0
+          go build -ldflags="-X main.Version=${VERSION}" -o systemd-age-creds
+
+          # Create tarball
+          tar -czf systemd-age-creds-${VERSION}-linux-arm64.tar.gz \
+            systemd-age-creds systemd/*.service systemd/*.socket README.md LICENSE
+
+      - name: Build RPM package
+        run: |
+          VERSION=v0.0.0-test
+          VERSION_NO_V=0.0.0
+
+          # Create RPM build directory structure
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+          # Copy tarball to SOURCES
+          cp systemd-age-creds-${VERSION}-linux-arm64.tar.gz ~/rpmbuild/SOURCES/
+
+          # Create spec file
+          cat > ~/rpmbuild/SPECS/systemd-age-creds.spec <<EOF
+          %global debug_package %{nil}
+
+          Name:           systemd-age-creds
+          Version:        ${VERSION_NO_V}
+          Release:        0.1.test%{?dist}
+          Summary:        Load age encrypted credentials in systemd units
+
+          License:        Apache-2.0
+          URL:            https://github.com/abyrne55/systemd-age-creds
+          Source0:        systemd-age-creds-${VERSION}-linux-arm64.tar.gz
+
+          Requires:       systemd, age >= 1.3.1
+
+          %description
+          systemd-age-creds provides a service credential server over AF_UNIX socket
+          to provide age encrypted credentials to systemd units using LoadCredential.
+
+          %prep
+          %setup -q -c
+
+          %install
+          mkdir -p %{buildroot}/usr/bin
+          mkdir -p %{buildroot}/usr/lib/systemd/system
+          install -m 755 systemd-age-creds %{buildroot}/usr/bin/systemd-age-creds
+          install -m 644 systemd/systemd-age-creds.service %{buildroot}/usr/lib/systemd/system/
+          install -m 644 systemd/systemd-age-creds.socket %{buildroot}/usr/lib/systemd/system/
+
+          %files
+          %license LICENSE
+          %doc README.md
+          /usr/bin/systemd-age-creds
+          /usr/lib/systemd/system/systemd-age-creds.service
+          /usr/lib/systemd/system/systemd-age-creds.socket
+
+          %post
+          if [ \$1 -eq 1 ]; then
+              # Initial installation
+              systemctl --no-reload preset systemd-age-creds.socket >/dev/null 2>&1 || :
+          fi
+          systemctl daemon-reload >/dev/null 2>&1 || :
+
+          %preun
+          if [ \$1 -eq 0 ]; then
+              # Package removal, not upgrade
+              systemctl --no-reload disable --now systemd-age-creds.socket systemd-age-creds.service >/dev/null 2>&1 || :
+          fi
+
+          %postun
+          systemctl daemon-reload >/dev/null 2>&1 || :
+          if [ \$1 -ge 1 ]; then
+              # Package upgrade, not removal
+              systemctl try-restart systemd-age-creds.socket >/dev/null 2>&1 || :
+          fi
+
+          %changelog
+          * $(date +"%a %b %d %Y") GitHub Actions <noreply@github.com> - ${VERSION_NO_V}-0.1.test
+          - Test build
+          EOF
+
+          # Build RPM
+          rpmbuild -bb ~/rpmbuild/SPECS/systemd-age-creds.spec
+
+      - name: Verify RPM was created
+        run: |
+          ls -lh ~/rpmbuild/RPMS/aarch64/systemd-age-creds-*.rpm
+          rpm -qilp ~/rpmbuild/RPMS/aarch64/systemd-age-creds-*.rpm
