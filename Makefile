@@ -7,7 +7,7 @@ LDFLAGS := -ldflags="-X main.Version=$(VERSION)"
 build:
 	go build $(LDFLAGS)
 
-# No cross-compilation targets needed - native builds only
+# Native build only - cross-compilation handled by CI matrix
 
 # Local installation (Linux)
 install: build
