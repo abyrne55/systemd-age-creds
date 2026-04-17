@@ -19,7 +19,8 @@ Download and install the RPM package from the [latest release](https://github.co
 ```bash
 # Download the RPM
 VERSION=v1.4.0  # Replace with latest version
-curl -LO https://github.com/abyrne55/systemd-age-creds/releases/download/${VERSION}/systemd-age-creds-1.4.0-1.fc42.aarch64.rpm
+ARCH=$(uname -m)  # x86_64 or aarch64
+curl -LO https://github.com/abyrne55/systemd-age-creds/releases/download/${VERSION}/systemd-age-creds-1.4.0-1.fc42.${ARCH}.rpm
 
 # Verify checksum
 curl -LO https://github.com/abyrne55/systemd-age-creds/releases/download/${VERSION}/SHA256SUMS
@@ -39,14 +40,15 @@ Download and install the binary from the [latest release](https://github.com/aby
 ```bash
 # Download the tarball
 VERSION=v1.4.0  # Replace with latest version
-curl -LO https://github.com/abyrne55/systemd-age-creds/releases/download/${VERSION}/systemd-age-creds-${VERSION}-linux-arm64.tar.gz
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+curl -LO https://github.com/abyrne55/systemd-age-creds/releases/download/${VERSION}/systemd-age-creds-${VERSION}-linux-${ARCH}.tar.gz
 
 # Verify checksum
 curl -LO https://github.com/abyrne55/systemd-age-creds/releases/download/${VERSION}/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing
 
 # Extract and install
-tar -xzf systemd-age-creds-${VERSION}-linux-arm64.tar.gz
+tar -xzf systemd-age-creds-${VERSION}-linux-${ARCH}.tar.gz
 sudo install -m 755 systemd-age-creds /usr/local/bin/systemd-age-creds
 sudo cp systemd/systemd-age-creds.socket /etc/systemd/system/
 sudo cp systemd/systemd-age-creds.service /etc/systemd/system/

@@ -84,7 +84,7 @@ git push origin v1.4.0
 ```
 
 The GitHub Actions workflow will:
-- Build native linux/arm64 binaries
+- Build native linux/amd64 and linux/arm64 binaries
 - Create tarball with binaries and systemd units
 - Build RPM package for Fedora/RHEL
 - Generate SHA256 checksums
