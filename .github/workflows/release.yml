@@ -121,7 +121,7 @@ jobs:
           cp ~/rpmbuild/RPMS/${{ matrix.rpm_arch }}/systemd-age-creds-*.rpm .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-${{ matrix.arch }}
           path: |
